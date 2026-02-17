@@ -33,7 +33,7 @@ public class TeamController {
     @PostMapping
     public ResponseEntity<TeamResponseDTO> addTeam(@RequestBody Team team) {
 
-        TeamResponseDTO createdTeam = teamService.createTeam(team);
+        TeamResponseDTO createdTeam = teamService.registerTeam(team);
 
         return ResponseEntity
                 .status(201)

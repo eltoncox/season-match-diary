@@ -41,7 +41,7 @@ public class TeamService {
     }
 
 
-    public TeamResponseDTO createTeam(Team team) {
+    public TeamResponseDTO registerTeam(Team team) {
         Team savedTeam = teamRepository.save(team);
         return toDTO(savedTeam);
     }
