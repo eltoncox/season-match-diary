@@ -35,9 +35,10 @@ public class Match {
     @ManyToOne
     @JsonManagedReference
     @JoinColumn(name = "team_two_id")
-    private Team teamOTWO;
+    private Team teamTWO;
 
-    
+    @ManyToOne
     @JoinColumn(name = "team_supported_id")
-    private Team  supportedTeam;
+    private Team supportedTeam;
+
 }
