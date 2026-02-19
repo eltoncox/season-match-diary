@@ -2,11 +2,12 @@ package com.elton.matchdiary.dto.match;
 
 import com.elton.matchdiary.dto.team.TeamResponseDTO;
 
-import java.util.Date;
+import java.time.LocalDate;
+
 
 public record MatchResponseDTO(
         Long id,
-        Date date,
+        LocalDate date,
         Integer scoreTeamOne,
         Integer scoreTeamTwo,
         TeamResponseDTO teamOne,

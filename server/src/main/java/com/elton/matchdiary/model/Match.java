@@ -7,10 +7,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.Date;
 
-@Table(name = "match")
-@Entity(name = "match")
+@Entity
+@Table(name = "matches")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,7 +22,7 @@ public class Match {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "date")
-    private Date date;
+    private LocalDate date;
     @Column(name = "score_team_one")
     private Integer scoreTeamOne;
     @Column(name = "score_team_two")

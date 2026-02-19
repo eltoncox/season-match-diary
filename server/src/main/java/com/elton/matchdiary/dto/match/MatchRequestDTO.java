@@ -1,9 +1,10 @@
 package com.elton.matchdiary.dto.match;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 public record MatchRequestDTO(
-        Date date,
+        LocalDate date,
         Integer scoreTeamOne,
         Integer scoreTeamTwo,
         Long teamOneId,
