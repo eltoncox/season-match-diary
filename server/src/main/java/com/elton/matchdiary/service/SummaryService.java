@@ -2,6 +2,7 @@ package com.elton.matchdiary.service;
 
 import com.elton.matchdiary.dto.summary.SummaryResponseDTO;
 import com.elton.matchdiary.dto.team.TeamResponseDTO;
+import com.elton.matchdiary.model.Match;
 import com.elton.matchdiary.model.Team;
 import com.elton.matchdiary.repository.MatchRepository;
 import com.elton.matchdiary.repository.TeamRepository;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 public class SummaryService {
@@ -23,15 +25,15 @@ public class SummaryService {
 
     public SummaryResponseDTO getSummary() {
 
-        long totalMatches = matchRepository.countMatches();
+        long matchesQuantity = matchRepository.countMatches();
 
-        if (totalMatches == 0) {
+        if (matchesQuantity == 0) {
             return new SummaryResponseDTO(0, 0, 0, null, 0);
         }
 
-        long victories = matchRepository.countVictories();
+        long winsQuantity = matchRepository.countVictories();
 
-        int winRatePercent = (int) Math.round((victories * 100.0) / totalMatches);
+        int winRatePercent = calculatePointsWinRatePercent();
 
         TeamResponseDTO mostSupportedTeam = matchRepository.findMostSupportedTeamId()
                 .flatMap(teamRepository::findById)
@@ -43,12 +45,61 @@ public class SummaryService {
                 .orElse(0L);
 
         return new SummaryResponseDTO(
-                totalMatches,
-                victories,
+                matchesQuantity,
+                winsQuantity,
                 winRatePercent,
                 mostSupportedTeam,
                 daysWithoutMatch
         );
+    }
+
+    /**
+     * Regra igual ao professor:
+     * - vitória do time apoiado: +3
+     * - empate: +1
+     * - total possível por partida: 3
+     * Percentual = (pontos conquistados / pontos possíveis) * 100
+     */
+    private int calculatePointsWinRatePercent() {
+
+        List<Match> matches = matchRepository.findAll();
+
+        long wonPoints = 0;
+        long totalPoints = 0;
+
+        for (Match match : matches) {
+            totalPoints += 3;
+
+            Integer scoreTeamOne = match.getScoreTeamOne();
+            Integer scoreTeamTwo = match.getScoreTeamTWO();
+
+            // empate
+            if (scoreTeamOne != null && scoreTeamTwo != null && scoreTeamOne.equals(scoreTeamTwo)) {
+                wonPoints += 1;
+                continue;
+            }
+
+            // determina vencedor
+            Long winnerTeamId = null;
+            if (scoreTeamOne != null && scoreTeamTwo != null) {
+                if (scoreTeamOne > scoreTeamTwo) {
+                    winnerTeamId = match.getTeamOne() != null ? match.getTeamOne().getId() : null;
+                } else if (scoreTeamTwo > scoreTeamOne) {
+                    winnerTeamId = match.getTeamTWO() != null ? match.getTeamTWO().getId() : null;
+                }
+            }
+
+            // se o time apoiado venceu, +3
+            if (winnerTeamId != null
+                    && match.getSupportedTeam() != null
+                    && match.getSupportedTeam().getId().equals(winnerTeamId)) {
+                wonPoints += 3;
+            }
+        }
+
+        if (totalPoints == 0) return 0;
+
+        return (int) Math.round((wonPoints * 100.0) / totalPoints);
     }
 
     private TeamResponseDTO toTeamResponseDTO(Team team) {
